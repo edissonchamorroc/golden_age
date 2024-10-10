@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "919011381856",
+    "project_id": "goldenage-b1493",
+    "storage_bucket": "goldenage-b1493.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:919011381856:android:0f91c1449cc4e622be2905",
+        "android_client_info": {
+          "package_name": "com.chamorro.golden_age"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCb0pmHjXdFJy5xpwbdSCyNaZEbREjRuoU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
