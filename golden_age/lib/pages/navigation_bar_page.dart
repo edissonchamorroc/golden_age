@@ -54,8 +54,8 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Navigation bar"),
-        backgroundColor: Colors.black,
+        backgroundColor:
+            const Color.fromARGB(206, 0, 0, 0), 
         leading: Builder(
           builder: (BuildContext context) {
             return IconButton(
@@ -102,7 +102,8 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
         decoration: const BoxDecoration(
           image: DecorationImage(
             image: AssetImage("assets/images/olimpiashadow2.png"),
-            fit: BoxFit.cover, // Ajusta la imagen para que cubra toda la pantalla
+            fit: BoxFit
+                .cover, // Ajusta la imagen para que cubra toda la pantalla
           ),
         ),
         child: Center(
