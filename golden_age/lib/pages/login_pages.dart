@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:golden_age/pages/register_page.dart';
+import 'package:golden_age/pages/splash_page.dart';
+import 'package:golden_age/repository/firebase_api.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -11,6 +14,30 @@ class _LoginPageState extends State<LoginPage> {
   final _email = TextEditingController();
   final _password = TextEditingController();
   bool _ispasswordObscure = true;
+  final FirebaseApi _firebaseApi = FirebaseApi();
+
+  void _showMessage(String msg) {
+    setState(() {
+      SnackBar snackBar = SnackBar(content: Text(msg));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+  }
+
+  Future<void> _onLoginButtonClicked() async {
+    final result = await _firebaseApi.signInUser(_email.text, _password.text);
+
+    if (result == 'invalid-email') {
+      _showMessage('El correo electrónico está mal escrito');
+    } else if (result == 'network-request-failed') {
+      _showMessage('Revise su conexión a internet');
+    } else if (result == 'invalid-credential') {
+      _showMessage('Correo electronico o contrasena incorrecta');
+    } else {
+      _showMessage('Bienvenido');
+      Navigator.pushReplacement(context,
+          MaterialPageRoute(builder: (context) => const SplashPage()));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,27 +104,29 @@ class _LoginPageState extends State<LoginPage> {
                   height: 16.0,
                 ),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    _onLoginButtonClicked();
+                  },
                   child: const Text("Iniciar sesion"),
                 ),
                 const SizedBox(
                   height: 16.0,
                 ),
-                // TextButton(
-                //   style: TextButton.styleFrom(
-                //     textStyle: const TextStyle(
-                //         fontSize: 16, fontStyle: FontStyle.italic),
-                //   ),
-                //   onPressed: () {
-                //     Navigator.push(
-                //       context,
-                //       MaterialPageRoute(
-                //         builder: (context) => const RegisterPage(),
-                //       ),
-                //     );
-                //   },
-                //   child: const Text("Registrarse"),
-                // ),
+                TextButton(
+                  style: TextButton.styleFrom(
+                      textStyle: const TextStyle(
+                          fontSize: 16, fontStyle: FontStyle.italic),
+                      foregroundColor: Colors.white),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const RegisterPage(),
+                      ),
+                    );
+                  },
+                  child: const Text("Registrarse"),
+                ),
               ],
             ),
           ),
