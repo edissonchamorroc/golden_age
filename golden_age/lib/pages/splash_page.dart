@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:golden_age/pages/login_pages.dart';
+import 'package:golden_age/pages/navigation_bar_page.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -13,9 +15,11 @@ class _SplashPageState extends State<SplashPage> {
     Future.delayed(const Duration(seconds: 2), () {
       FirebaseAuth.instance.authStateChanges().listen((User? user) {
         if (user == null) {
-          print('User is currently signed out!');
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => const LoginPage()));
         } else {
-          print('User is signed in!');
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => const NavigationBarPage()));
         }
       });
     });
@@ -29,9 +33,15 @@ class _SplashPageState extends State<SplashPage> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Image(image: AssetImage("assets/images/logo.png")),
+    return Scaffold(
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/images/olimpiashadow.png"),
+            fit: BoxFit
+                .cover, // Ajusta la imagen para que cubra toda la pantalla
+          ),
+        ),
       ),
     );
   }
