@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:golden_age/pages/login_pages.dart';
 import 'package:golden_age/pages/rutina_page.dart';
 import 'package:golden_age/pages/seguimiento_page.dart';
+import 'package:golden_age/repository/firebase_api.dart';
 
 class NavigationBarPage extends StatefulWidget {
   const NavigationBarPage({super.key});
@@ -11,6 +13,13 @@ class NavigationBarPage extends StatefulWidget {
 
 class _NavigationBarPageState extends State<NavigationBarPage> {
   int _selectedIndex = 0;
+  final FirebaseApi _firebaseApi = FirebaseApi();
+
+  Future<void> _onLogoutButtonClicked() async {
+    await _firebaseApi.singOutUser();
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => const LoginPage()));
+  }
 
   static const List<Widget> _widgetOptions = <Widget>[
     RutinaPage(),
@@ -34,14 +43,16 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
             TextButton(
               child: Text('Cancelar'),
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const NavigationBarPage()));
               },
             ),
             TextButton(
               child: Text('Salir'),
               onPressed: () {
-                Navigator.of(context).pop();
-                // Lógica para logout (redireccionar o limpiar sesión)
+                _onLogoutButtonClicked();
               },
             ),
           ],
@@ -54,8 +65,7 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor:
-            const Color.fromARGB(206, 0, 0, 0), 
+        backgroundColor: const Color.fromARGB(206, 0, 0, 0),
         leading: Builder(
           builder: (BuildContext context) {
             return IconButton(
