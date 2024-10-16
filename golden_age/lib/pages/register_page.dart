@@ -247,7 +247,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         Expanded(
                           child: ListTile(
                             title: const Text("Femenino",
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
                                 )),
@@ -303,6 +303,6 @@ extension on String {
 
 extension on String {
   bool isPasswordValid() {
-    return this.length > 5;
+    return length > 5;
   }
 }
