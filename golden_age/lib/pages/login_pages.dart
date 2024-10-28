@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:golden_age/pages/register_page.dart';
 import 'package:golden_age/pages/splash_page.dart';
+import 'package:golden_age/pages/navigation_bar_page.dart';
 import 'package:golden_age/repository/firebase_api.dart';
 
 class LoginPage extends StatefulWidget {
@@ -25,17 +26,16 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _onLoginButtonClicked() async {
     final result = await _firebaseApi.signInUser(_email.text, _password.text);
-
     if (result == 'invalid-email') {
       _showMessage('El correo electrónico está mal escrito');
     } else if (result == 'network-request-failed') {
       _showMessage('Revise su conexión a internet');
     } else if (result == 'invalid-credential') {
-      _showMessage('Correo electronico o contrasena incorrecta');
+      _showMessage("Correo electrónico o contrasena incorrecta");
     } else {
-      _showMessage('Bienvenido');
+      _showMessage('Bienvebido');
       Navigator.pushReplacement(context,
-          MaterialPageRoute(builder: (context) => const SplashPage()));
+          MaterialPageRoute(builder: (context) => const NavigationBarPage()));
     }
   }
 
@@ -43,12 +43,16 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: Container(
+      /*
+          color: Colors.black, // Fondo negro sólido
       decoration: const BoxDecoration(
         image: DecorationImage(
           image: AssetImage("assets/images/pesas.png"),
           fit: BoxFit.cover, // Ajusta la imagen para que cubra toda la pantalla
         ),
-      ),
+        
+      ),*/
+      color: Colors.black, // Fondo negro sólido
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Center(
@@ -71,7 +75,19 @@ class _LoginPageState extends State<LoginPage> {
                     fillColor: Colors.white,
                     border: OutlineInputBorder(),
                     labelText: "Digite su correo",
+                    labelStyle: TextStyle(color: Colors.black),
                     prefixIcon: Icon(Icons.email),
+                    prefixIconColor: Colors.black,
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                          color: Colors.grey,
+                          width: 1.0), // Borde cuando no está enfocado
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                          color: Colors.grey,
+                          width: 2.0), // Borde cuando está enfocado
+                    ),
                   ),
                   keyboardType: TextInputType.emailAddress,
                 ),
@@ -86,7 +102,19 @@ class _LoginPageState extends State<LoginPage> {
                     fillColor: Colors.white,
                     border: const OutlineInputBorder(),
                     labelText: "Digite la contrasena",
+                    labelStyle: TextStyle(color: Colors.black),
                     prefixIcon: const Icon(Icons.lock),
+                    prefixIconColor: Colors.black,
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                          color: Colors.grey,
+                          width: 1.0), // Borde cuando no está enfocado
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                          color: Colors.grey,
+                          width: 2.0), // Borde cuando está enfocado
+                    ),
                     suffixIcon: IconButton(
                       icon: Icon(_ispasswordObscure
                           ? Icons.visibility
@@ -107,7 +135,15 @@ class _LoginPageState extends State<LoginPage> {
                   onPressed: () {
                     _onLoginButtonClicked();
                   },
-                  child: const Text("Iniciar sesion"),
+                  style: OutlinedButton.styleFrom(
+                    backgroundColor: Colors.white, // Fondo blanco
+                    side: const BorderSide(
+                        color: Colors.grey, width: 2.0), // Borde gris
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 12.0, horizontal: 24.0), // Ajuste de padding
+                  ),
+                  child: const Text("Iniciar sesion",
+                      style: TextStyle(color: Colors.black)),
                 ),
                 const SizedBox(
                   height: 16.0,
@@ -116,7 +152,8 @@ class _LoginPageState extends State<LoginPage> {
                   style: TextButton.styleFrom(
                       textStyle: const TextStyle(
                           fontSize: 16, fontStyle: FontStyle.italic),
-                      foregroundColor: Colors.white),
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black),
                   onPressed: () {
                     Navigator.push(
                       context,

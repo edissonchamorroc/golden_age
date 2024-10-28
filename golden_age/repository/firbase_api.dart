@@ -14,6 +14,7 @@ class FirbaseApi {
     } catch (e) {
       print(e);
     }
+    return null;
   }
 
   Future<String?> signInUser(String emailAddress, String password) async {
@@ -28,5 +29,6 @@ class FirbaseApi {
         print('Wrong password provided for that user.');
       }
     }
+    return null;
   }
 }
