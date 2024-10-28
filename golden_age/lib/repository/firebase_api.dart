@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
 class FirebaseApi {
-  
   Future<String?> createUser(String emailAddress, String password) async {
     try {
       final credential =
@@ -15,6 +14,7 @@ class FirebaseApi {
     } catch (e) {
       print(e);
     }
+    return null;
   }
 
   Future<String?> signInUser(String emailAddress, String password) async {
@@ -29,5 +29,6 @@ class FirebaseApi {
         print('Wrong password provided for that user.');
       }
     }
+    return null;
   }
 }
