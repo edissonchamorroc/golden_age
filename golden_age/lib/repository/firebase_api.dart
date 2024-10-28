@@ -31,4 +31,8 @@ class FirebaseApi {
     }
     return null;
   }
+
+  Future<void> singOutUser() async {
+    await FirebaseAuth.instance.signOut();
+  }
 }
