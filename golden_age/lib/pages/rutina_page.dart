@@ -9,7 +9,7 @@ class RutinaPage extends StatefulWidget {
 }
 
 class _RutinaPageState extends State<RutinaPage> {
-  CalendarFormat _calendarFormat = CalendarFormat.month;
+  final CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
   @override

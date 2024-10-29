@@ -30,10 +30,10 @@ class _LoginPageState extends State<LoginPage> {
       _showMessage('El correo electrónico está mal escrito');
     } else if (result == 'network-request-failed') {
       _showMessage('Revise su conexión a internet');
-    } else if (result == 'invalid-credential') {
+    } else if (result == 'invalid-credential' || result == null) {
       _showMessage("Correo electrónico o contrasena incorrecta");
     } else {
-      _showMessage('Bienvebido');
+      // ignore: use_build_context_synchronously
       Navigator.pushReplacement(context,
           MaterialPageRoute(builder: (context) => const NavigationBarPage()));
     }
