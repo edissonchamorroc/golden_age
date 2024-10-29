@@ -28,8 +28,8 @@ class FirebaseApi {
       } else if (e.code == 'wrong-password') {
         print('Wrong password provided for that user.');
       }
+      return null;
     }
-    return null;
   }
 
   Future<void> singOutUser() async {
