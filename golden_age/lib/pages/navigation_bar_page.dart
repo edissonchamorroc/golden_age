@@ -18,6 +18,7 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
   Future<void> _onLogoutButtonClicked() async {
     await _firebaseApi.singOutUser();
     Navigator.pushReplacement(
+        // ignore: use_build_context_synchronously
         context, MaterialPageRoute(builder: (context) => const LoginPage()));
   }
 
