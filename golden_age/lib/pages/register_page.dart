@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:golden_age/models/user.dart';
+import 'package:golden_age/models/golden_user.dart';
+
 import 'package:golden_age/pages/login_pages.dart';
 import 'package:golden_age/repository/firebase_api.dart';
 import 'package:intl/intl.dart';
@@ -19,20 +20,23 @@ class _RegisterPageState extends State<RegisterPage> {
   final _password = TextEditingController();
   final _repPassword = TextEditingController();
   final _expertise = TextEditingController();
-  final _target = TextEditingController();
+  final _objetive = TextEditingController();
+  final _weight = TextEditingController();
   bool _ispasswordObscure = true;
   Genre? _genre = Genre.male;
   final FirebaseApi _firebaseApi = FirebaseApi();
-
-  final List<String> _targets = [
+  final List<String> _objetives = [
     'Hipertrofia',
     'Perder grasa',
     'Fuerza',
     'Resistencia',
   ];
-
+  final List<String> _expertises = [
+    'Novato',
+    'Intermedio',
+    'Avanzado',
+  ];
   String buttonMsg = "Fecha de nacimiento";
-
   DateTime _data = DateTime.now();
 
   //Función para extrer la información del calendario
@@ -67,7 +71,18 @@ class _RegisterPageState extends State<RegisterPage> {
     });
   }
 
-  void _createUser(User user) async {
+  void _createUserInDB(GoldenUser user) async {
+    var result = await _firebaseApi.insertUser(user);
+    if (result == 'network-request-failed') {
+      _showMessage('Revise su conexión a internet');
+    } else {
+      _showMessage('Usuario creado con éxito');
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => const LoginPage()));
+    }
+  }
+
+  void _createUser(GoldenUser user) async {
     var result = await _firebaseApi.createUser(user.email, user.password);
     if (result == 'invalid-email') {
       _showMessage('El correo electrónico está mal escrito');
@@ -79,38 +94,19 @@ class _RegisterPageState extends State<RegisterPage> {
       _showMessage('Revise su conexión a internet');
     } else {
       user.uid = result!;
-      Navigator.pop(context);
-      //_createUserInDB(user);
+      _createUserInDB(user);
     }
   }
 
-  /*void _onRegisterButtonClicked() {
-    if (_email.text.isEmpty || _password.text.isEmpty) {
-      _showMessage("ERROR: Debe digitar correo electrónico y contraseña");
-    } else if (_password.text != _repPassword.text) {
-      _showMessage("ERROR: Las contraseñas deben de ser iguales");
-    } else {
-      String genre = _genre == Genre.male ? "Masculino" : "Femenino";
-      var user = User(
-        _name.text,
-        _email.text,
-        _password.text,
-        genre,
-        _expertise.text,
-        _target.text
-      );
-      _createUser(user);
-    }
-  }*/
-  void _onRegisterButtonClicked() {
+  void _onRegisterButtonClicked() async {
     if (_email.text.isEmpty || _password.text.isEmpty) {
       _showMessage("ERROR: Debe digitar correo electrónico y la contraseña");
     } else if (_password.text != _repPassword.text) {
       _showMessage("ERROR: Las contraseñas deben ser iguales");
     } else {
       String genre = _genre == Genre.male ? "Maculino" : "Femenino";
-      var user = User("", _name.text, _email.text, _password.text, genre,
-          _expertise.text, _target);
+      var user = GoldenUser("", _name.text, _email.text, _password.text, genre,
+          _expertise.text, _objetive.text, _dateConverter(_data),  _weight.text as int);
       _createUser(user);
     }
   }
@@ -124,7 +120,6 @@ class _RegisterPageState extends State<RegisterPage> {
             title: const Text(
               'GOLDE AGE',
               style: TextStyle(
-                //color: Color.fromARGB(255, 224, 210, 210),
                 color: Colors.white,
                 fontSize: 38.0,
                 fontFamily: 'Roboto',
@@ -133,29 +128,10 @@ class _RegisterPageState extends State<RegisterPage> {
               textAlign: TextAlign.center,
             ),
             backgroundColor: Colors.black,
-            //Colors.transparent, // Fondo transparente para ver la imagen
-            /*/
-            flexibleSpace: Container(
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage(
-                      'assets/images/pesa.png'), // Tu imagen de fondo
-                  fit: BoxFit
-                      .cover, // Ajusta la imagen para cubrir todo el AppBar
-                ),
-              ),
-            ),*/
           ),
         ),
         body: Container(
           color: Colors.white,
-          /*decoration: const BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage("assets/images/olimpiashadow.png"),
-              fit: BoxFit
-                  .cover, // Ajusta la imagen para que cubra toda la pantalla
-            ),
-          ),*/
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Center(
@@ -171,6 +147,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         border: OutlineInputBorder(),
                         labelText: "Digite su nombre",
                         labelStyle: TextStyle(color: Colors.black),
+                        helperText: "*Campo obligatorio",
                         prefixIcon: Icon(Icons.person),
                         prefixIconColor: Colors.black,
                         enabledBorder: OutlineInputBorder(
@@ -309,36 +286,39 @@ class _RegisterPageState extends State<RegisterPage> {
                     const SizedBox(
                       height: 16.0,
                     ),
-/*
-                    DropdownMenu<String>(
-                      width: 380,
-                      enableFilter: true,
-                      requestFocusOnTap: true,
-                      //label: const Text('Objetivo'),
-                      label: const Text(
-                        'Objetivo',
-                        style: TextStyle(
-                          color: Colors
-                              .black, // Color del texto de la etiqueta "Objetivo"
+                    TextFormField(
+                      controller: _weight,
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: const OutlineInputBorder(),
+                        labelText: "Peso",
+                        labelStyle: TextStyle(color: Colors.black),
+                        helperText: "*Campo obligatorio",
+                        helperStyle: TextStyle(color: Colors.white),
+                        prefixIcon: const Icon(Icons.numbers),
+                        prefixIconColor: Colors.black,
+                        suffixIconColor: Colors.black,
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(
+                              color: Colors.grey,
+                              width: 1.0), // Borde cuando no está enfocado
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(
+                              color: Colors.grey,
+                              width: 2.0), // Borde cuando está enfocado
                         ),
                       ),
-                      onSelected: (String? target) {
-                        setState(() {
-                          _target.text = target!;
-                        });
-                      },
-                      
-                      dropdownMenuEntries: _targets
-                          .map<DropdownMenuEntry<String>>((String target) {
-                        return DropdownMenuEntry<String>(
-                            value: target, label: target);
-                      }
-                      
-                      ).toList(),
-                      
-                    ),*/
+                      keyboardType: TextInputType.number,
+                    ),
+                    const SizedBox(
+                      height: 16.0,
+                    ),
                     DropdownButtonFormField<String>(
-                      value: _target.text.isEmpty ? null : _target.text,
+                      value: (_objetive.text.isEmpty) ? null : _objetive.text,
                       decoration: InputDecoration(
                         filled: true,
                         fillColor:
@@ -363,10 +343,10 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                       onChanged: (String? newValue) {
                         setState(() {
-                          _target.text = newValue!;
+                          _objetive.text = newValue!;
                         });
                       },
-                      items: _targets
+                      items: _objetives
                           .map<DropdownMenuItem<String>>((String target) {
                         return DropdownMenuItem<String>(
                           value: target,
@@ -380,7 +360,52 @@ class _RegisterPageState extends State<RegisterPage> {
                         );
                       }).toList(),
                     ),
-
+                    const SizedBox(
+                      height: 16.0,
+                    ),
+                    DropdownButtonFormField<String>(
+                      value: (_expertise.text.isEmpty) ? null : _expertise.text,
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor:
+                            Colors.white, // Color de fondo del menú desplegable
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: Colors.grey),
+                        ),
+                        labelText: 'Experiencia',
+                        labelStyle: TextStyle(
+                          color: Colors
+                              .black, // Color del texto de la etiqueta "Objetivo"
+                        ),
+                      ),
+                      dropdownColor:
+                          Colors.white, // Color de fondo del menú desplegable
+                      iconEnabledColor:
+                          Colors.black, // Color del icono desplegable
+                      style: TextStyle(
+                        color: Colors.black, // Color del texto seleccionado
+                        fontSize: 16,
+                      ),
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          _expertise.text = newValue!;
+                        });
+                      },
+                      items: _expertises
+                          .map<DropdownMenuItem<String>>((String target) {
+                        return DropdownMenuItem<String>(
+                          value: target,
+                          child: Text(
+                            target,
+                            style: TextStyle(
+                              color: Colors
+                                  .black, // Color del texto dentro de cada opción
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
                     const SizedBox(
                       height: 16.0,
                     ),
@@ -480,7 +505,6 @@ class _RegisterPageState extends State<RegisterPage> {
                               fontSize: 16, fontStyle: FontStyle.italic),
                           backgroundColor: Colors.white,
                           foregroundColor: Colors.black),
-                      //foregroundColor: const Color.fromARGB(255, 0, 0, 0)),
                       onPressed: () {
                         Navigator.push(
                           context,
