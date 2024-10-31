@@ -43,15 +43,6 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: Container(
-      /*
-          color: Colors.black, // Fondo negro sólido
-      decoration: const BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage("assets/images/pesas.png"),
-          fit: BoxFit.cover, // Ajusta la imagen para que cubra toda la pantalla
-        ),
-        
-      ),*/
       color: Colors.black, // Fondo negro sólido
       child: Padding(
         padding: const EdgeInsets.all(8.0),
