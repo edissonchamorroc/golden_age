@@ -7,8 +7,7 @@ class GoldenUser {
   var _expertise;
   var _objetive;
   var _bornDate;
-  int _weight;
-  
+  var _weight;
 
   GoldenUser(this._uid, this._name, this._email, this._password, this._genre,
       this._expertise, this._objetive, this._bornDate, this._weight);
@@ -64,8 +63,9 @@ class GoldenUser {
   get weight => _weight;
 
   set weight(value) {
-    _weight= value;
+    _weight = value;
   }
+
   Map<String, dynamic> toMap() {
     return {
       'uid': _uid,
@@ -74,18 +74,18 @@ class GoldenUser {
       'password': _password,
       'genre': _genre,
       'expertise': _expertise,
-      'objetive':_objetive,
-      'bornDate':_bornDate,
+      'objetive': _objetive,
+      'bornDate': _bornDate,
       'progress': getProgress()
     };
   }
 
-  Map<String, dynamic> getProgress(){
-    return{
-      'weight':_weight,
-      'benchPressRM':0,
-      'squatRM':0,
-      'deadliftRM':0,
+  Map<String, dynamic> getProgress() {
+    return {
+      'weight': _weight,
+      'benchPressRM': 0,
+      'squatRM': 0,
+      'deadliftRM': 0,
     };
   }
 }

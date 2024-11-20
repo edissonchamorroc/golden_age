@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:golden_age/pages/register_page.dart';
-import 'package:golden_age/pages/splash_page.dart';
 import 'package:golden_age/pages/navigation_bar_page.dart';
 import 'package:golden_age/repository/firebase_api.dart';
 
@@ -25,6 +24,11 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _onLoginButtonClicked() async {
+    // Validar si los campos están vacíos
+    if (_email.text.isEmpty || _password.text.isEmpty) {
+      _showMessage('Por favor, ingrese su correo electrónico y contraseña');
+      return;
+    }
     final result = await _firebaseApi.signInUser(_email.text, _password.text);
     if (result == 'invalid-email') {
       _showMessage('El correo electrónico está mal escrito');

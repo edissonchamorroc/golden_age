@@ -106,7 +106,7 @@ class _RegisterPageState extends State<RegisterPage> {
     } else {
       String genre = _genre == Genre.male ? "Maculino" : "Femenino";
       var user = GoldenUser("", _name.text, _email.text, _password.text, genre,
-          _expertise.text, _objetive.text, _dateConverter(_data),  _weight.text as int);
+          _expertise.text, _objetive.text, _dateConverter(_data), _weight.text);
       _createUser(user);
     }
   }
