@@ -34,10 +34,10 @@ class _LoginPageState extends State<LoginPage> {
       _showMessage('El correo electrónico está mal escrito');
     } else if (result == 'network-request-failed') {
       _showMessage('Revise su conexión a internet');
-    } else if (result == 'invalid-credential') {
+    } else if (result == 'invalid-credential' || result == null) {
       _showMessage("Correo electrónico o contrasena incorrecta");
     } else {
-      _showMessage('Bienvebido');
+      // ignore: use_build_context_synchronously
       Navigator.pushReplacement(context,
           MaterialPageRoute(builder: (context) => const NavigationBarPage()));
     }
@@ -47,15 +47,6 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: Container(
-      /*
-          color: Colors.black, // Fondo negro sólido
-      decoration: const BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage("assets/images/pesas.png"),
-          fit: BoxFit.cover, // Ajusta la imagen para que cubra toda la pantalla
-        ),
-        
-      ),*/
       color: Colors.black, // Fondo negro sólido
       child: Padding(
         padding: const EdgeInsets.all(8.0),

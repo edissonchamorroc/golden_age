@@ -1,4 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:golden_age/models/golden_user.dart';
+
 
 class FirebaseApi {
   Future<String?> createUser(String emailAddress, String password) async {
@@ -28,7 +31,22 @@ class FirebaseApi {
       } else if (e.code == 'wrong-password') {
         print('Wrong password provided for that user.');
       }
+      return null;
     }
-    return null;
+  }
+
+  Future<void> singOutUser() async {
+    await FirebaseAuth.instance.signOut();
+  }
+
+  Future<String> insertUser(GoldenUser newUser) async {
+    try{
+      var db = FirebaseFirestore.instance;
+      await db.collection('users').doc(newUser.uid).set(newUser.toMap());
+      return newUser.uid;
+    } on FirebaseException catch (e) {
+      print("FirebaseException ${e.code}");
+      return e.code;
+    }
   }
 }
