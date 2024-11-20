@@ -31,10 +31,12 @@ class MyApp extends StatelessWidget {
         localizationsDelegates: const [
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate, // Agregado
         ],
         supportedLocales: const [
-          Locale("es", "CO"),
-          Locale("en", "US"),
+          Locale('es'), // Español genérico
+          Locale('es', 'CO'), // Español de Colombia
+          Locale('en'), // Inglés genérico
         ],
         //}
         theme: ThemeData(
