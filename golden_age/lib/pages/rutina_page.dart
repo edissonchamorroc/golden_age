@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'create_routine_page.dart';
 
 class RutinaPage extends StatefulWidget {
   const RutinaPage({super.key});
@@ -9,9 +10,31 @@ class RutinaPage extends StatefulWidget {
 }
 
 class _RutinaPageState extends State<RutinaPage> {
-  CalendarFormat _calendarFormat = CalendarFormat.month;
+  final CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
+
+  // Función para manejar las opciones seleccionadas en el menú desplegable.
+  void _handleMenuOption(String option) {
+    switch (option) {
+      case 'Generar rutina automática':
+        // Acción para generar una rutina automática.
+        print('Generar rutina automática');
+        break;
+      case 'Crear nueva rutina':
+        // Acción para crear una nueva rutina.
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => CreateRoutinePage()),
+        );
+        break;
+      case 'Modificar rutina actual':
+        // Acción para modificar la rutina actual.
+        print('Modificar rutina actual');
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,6 +44,28 @@ class _RutinaPageState extends State<RutinaPage> {
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.black,
+        // Menú desplegable en la parte superior derecha del AppBar.
+        actions: [
+          PopupMenuButton<String>(
+            icon: Icon(Icons.menu, color: Colors.white), // Ícono del menú.
+            onSelected: _handleMenuOption, // Acción al seleccionar una opción.
+            itemBuilder: (BuildContext context) => [
+              PopupMenuItem(
+                value:
+                    'Generar rutina automática', // Identificador de la opción.
+                child: Text('Generar rutina automática'), // Texto mostrado.
+              ),
+              PopupMenuItem(
+                value: 'Crear nueva rutina', // Identificador de la opción.
+                child: Text('Crear nueva rutina'), // Texto mostrado.
+              ),
+              PopupMenuItem(
+                value: 'Modificar rutina actual', // Identificador de la opción.
+                child: Text('Modificar rutina actual'), // Texto mostrado.
+              ),
+            ],
+          ),
+        ],
       ),
       body: Container(
           color: Colors.black,

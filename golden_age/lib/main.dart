@@ -1,7 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:golden_age/firebase_options.dart';
-import 'package:golden_age/pages/login_pages.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:golden_age/pages/splash_page.dart';
 
@@ -23,10 +22,12 @@ class MyApp extends StatelessWidget {
         localizationsDelegates: const [
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate, // Agregado
         ],
         supportedLocales: const [
-          Locale("es", "CO"),
-          Locale("en", "US"),
+          Locale('es'), // Español genérico
+          Locale('es', 'CO'), // Español de Colombia
+          Locale('en'), // Inglés genérico
         ],
         //}
         theme: ThemeData(
