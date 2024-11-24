@@ -112,7 +112,7 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage("assets/images/olimpiashadow2.png"),
+            image: AssetImage("assets/imagenes/olimpiashadow2.png"),
             fit: BoxFit
                 .cover, // Ajusta la imagen para que cubra toda la pantalla
           ),
