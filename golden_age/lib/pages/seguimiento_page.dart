@@ -10,6 +10,7 @@ class SeguimientoPage extends StatefulWidget {
 
 class _SeguimientoPageState extends State<SeguimientoPage> {
   final FirebaseApi _firestore = FirebaseApi();
+  final ScrollController _scrollController = ScrollController(); // Controlador para el scroll
   DateTime selectedDate = DateTime.now(); // Día seleccionado
   List<Map<String, dynamic>> exerciseData = []; // Datos de ejercicios
 
@@ -17,6 +18,15 @@ class _SeguimientoPageState extends State<SeguimientoPage> {
   void initState() {
     super.initState();
     loadSeguimientoData();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      scrollToSelectedDay(); // Realizar scroll al día actual
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose(); // Liberar el controlador cuando no se use
+    super.dispose();
   }
 
   Future<void> loadSeguimientoData() async {
@@ -30,9 +40,24 @@ class _SeguimientoPageState extends State<SeguimientoPage> {
     }
   }
 
+  void scrollToSelectedDay() {
+    final daysInMonth = List.generate(
+      DateTime(selectedDate.year, selectedDate.month + 1, 0).day,
+      (index) => index + 1,
+    );
+    final selectedIndex = daysInMonth.indexOf(selectedDate.day);
+    if (selectedIndex != -1) {
+      final position = selectedIndex * 50.0; // Asumiendo que cada día tiene un ancho de 50
+      _scrollController.animateTo(
+        position,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Generar los días del mes actual
     final daysInMonth = List.generate(
       DateTime(selectedDate.year, selectedDate.month + 1, 0).day,
       (index) => DateTime(selectedDate.year, selectedDate.month, index + 1),
@@ -47,11 +72,12 @@ class _SeguimientoPageState extends State<SeguimientoPage> {
           // Fila con los días del mes
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
+            controller: _scrollController, // Vincular el controlador
             child: Row(
               children: daysInMonth.map((day) {
                 // Verificar si hay datos para el día actual
                 final hasData = exerciseData.any((exercise) {
-                  final timestamp = (exercise['timestamp']).toDate();
+                  final timestamp = (exercise['timestamp'] ).toDate();
                   return timestamp.year == day.year &&
                       timestamp.month == day.month &&
                       timestamp.day == day.day;
@@ -102,7 +128,7 @@ class _SeguimientoPageState extends State<SeguimientoPage> {
                       final exercise = exerciseData[index];
 
                       // Verifica que los ejercicios sean de la fecha seleccionada
-                      final timestamp = (exercise['timestamp']).toDate();
+                      final timestamp = (exercise['timestamp'] ).toDate();
                       if (timestamp.year != selectedDate.year ||
                           timestamp.month != selectedDate.month ||
                           timestamp.day != selectedDate.day) {
