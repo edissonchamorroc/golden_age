@@ -1,9 +1,11 @@
 import 'dart:convert';
 
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart' hide CarouselController;
 import 'package:flutter/services.dart';
 import 'package:golden_age/models/Exercise.dart';
+import 'package:golden_age/repository/firebase_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ExerciseDetailPage extends StatefulWidget {
@@ -17,6 +19,7 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
   Exercise? exercise;
   List<int> repetitions = [];
   List<String> images = [];
+  final FirebaseApi _firebaseApi = FirebaseApi();
 
   Future<Exercise?> getExerciseFromLocalStorage() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -28,10 +31,19 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
     return null;
   }
 
-  void saveRepetitionsToFirebase() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Información guardada exitosamente')),
-    );
+  void saveRepetitionsToFirebase() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? userId = prefs.getString('userId');
+    Map<String, dynamic> seguimiento = {
+      'user': userId,
+      'exerciseName': exercise!.name,
+      'muscleGroup': exercise!.muscleGroup,
+      'restTime': exercise!.restTime,
+      'series': repetitions.map((rep) => {'repetitions': rep}).toList(),
+      'timestamp': Timestamp.now()
+    };
+
+    await _firebaseApi.saveSeguimiento(seguimiento);
   }
 
   @override

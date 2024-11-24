@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:golden_age/models/Exercise.dart';
 import 'package:golden_age/models/golden_user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
 class FirebaseApi {
   Future<String?> createUser(String emailAddress, String password) async {
@@ -92,16 +93,46 @@ class FirebaseApi {
     }
   }
 
-  Future<void> saveRepetitionsToFirebase() async {
+  Future<void> saveSeguimiento(Map<String, dynamic> segumiento) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      String? userId = prefs.getString('userId');
+      String uuid = Uuid().v4();
       final FirebaseFirestore firestore = FirebaseFirestore.instance;
-     // await firestore.collection('segimiento').doc(userId).set(data)
-
+      await firestore.collection('seguimiento').doc(uuid).set(segumiento);
     } catch (e) {
-    print('Error fetching exercises: $e');
-      
+      print('Error fetching exercises: $e');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchExerciseData(DateTime? date) async {
+    final prefs = await SharedPreferences.getInstance();
+    String? userId = prefs.getString('userId');
+    try {
+      var firestore = FirebaseFirestore.instance;
+      final snapshot = await firestore
+          .collection('seguimiento')
+          .where('user', isEqualTo: userId)
+          .get();
+
+      final List<Map<String, dynamic>> results = snapshot.docs
+          .map((doc) => doc.data() as Map<String, dynamic>)
+          .toList();
+      // Si se proporciona una fecha, añade el filtro.
+      if (date != null) {
+        final DateTime startOfDay = DateTime(date.year, date.month, date.day);
+        final DateTime endOfDay = startOfDay
+            .add(const Duration(days: 1))
+            .subtract(const Duration(milliseconds: 1));
+
+        return results.where((exercise) {
+          final timestamp = (exercise['timestamp']).toDate();
+          return timestamp.isAfter(startOfDay) && timestamp.isBefore(endOfDay);
+        }).toList();
+      }
+
+      return results;
+    } catch (e) {
+      print('Error fetching exercise data: $e');
+      return [];
     }
   }
 }
