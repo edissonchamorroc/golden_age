@@ -55,27 +55,6 @@ class FirebaseApi {
     }
   }
 
-  Future<GoldenUser?> getUserByUid(String? uid) async {
-    try {
-      var db = FirebaseFirestore
-          .instance; // Obtén el documento del usuario por su UID
-      var docSnapshot = await db.collection('users').doc(uid).get();
-
-      if (docSnapshot.exists && docSnapshot.data() != null) {
-        return GoldenUser.fromMap(docSnapshot.data()!);
-      } else {
-        print("No se encontró el usuario con UID: $uid");
-        return null;
-      }
-    } on FirebaseException catch (e) {
-      print("FirebaseException ${e.code}");
-      return null;
-    } catch (e) {
-      print("Error al obtener el usuario: $e");
-      return null;
-    }
-  }
-
   Future<List<Exercise>?> fetchExercises(String muscleGroup) async {
     final prefs = await SharedPreferences.getInstance();
     String? userId = prefs.getString('userId');
