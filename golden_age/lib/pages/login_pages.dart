@@ -56,7 +56,7 @@ class _LoginPageState extends State<LoginPage> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 const Image(
-                  image: AssetImage('assets/images/logo.png'),
+                  image: AssetImage('assets/imagenes/logo.png'),
                   width: 100,
                   height: 100,
                 ),

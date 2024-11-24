@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:golden_age/models/Exercise.dart';
+import 'package:golden_age/pages/exercise_detail_page.dart';
 import 'package:golden_age/repository/firebase_api.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RutinaPage extends StatefulWidget {
   const RutinaPage({Key? key}) : super(key: key);
@@ -12,7 +16,6 @@ class RutinaPage extends StatefulWidget {
 class _RutinaPageState extends State<RutinaPage> {
   final FirebaseApi _firebaseService = FirebaseApi();
   String? selectedMuscleGroup;
-  String? selectedLevel;
   List<Exercise> exercises = [];
   bool isLoading = false;
 
@@ -25,11 +28,10 @@ class _RutinaPageState extends State<RutinaPage> {
     'Abdominales',
   ];
 
-
   Future<void> fetchExercises() async {
     if (selectedMuscleGroup == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Selecciona un grupo muscular y nivel')),
+        const SnackBar(content: Text('Selecciona un grupo muscular')),
       );
       return;
     }
@@ -40,7 +42,7 @@ class _RutinaPageState extends State<RutinaPage> {
 
     try {
       List<Exercise>? fetchedExercises = await _firebaseService.fetchExercises(
-        selectedMuscleGroup!
+        selectedMuscleGroup!,
       );
 
       setState(() {
@@ -55,6 +57,28 @@ class _RutinaPageState extends State<RutinaPage> {
         SnackBar(content: Text('Error al obtener ejercicios: $e')),
       );
     }
+  }
+
+  Future<void> saveExerciseToLocalStorage(Exercise exercise) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String exerciseJson = jsonEncode(exercise.toJson());
+    if(exerciseJson == prefs.getString('selectedExercise')){
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Ya ingresaste a este ejercicio')),
+      );
+    }
+    await prefs.setString('selectedExercise', exerciseJson);
+  }
+
+  void navigateToExerciseDetail(Exercise exercise) async {
+    await saveExerciseToLocalStorage(exercise);
+    Navigator.push(
+      // ignore: use_build_context_synchronously
+      context,
+      MaterialPageRoute(
+        builder: (context) => ExerciseDetailPage(),
+      ),
+    );
   }
 
   @override
@@ -119,6 +143,7 @@ class _RutinaPageState extends State<RutinaPage> {
                                   'Descanso: ${exercise.restTime} seg\n'
                                   'Descripción: ${exercise.description}',
                                 ),
+                                onTap: () => navigateToExerciseDetail(exercise),
                               ),
                             );
                           },
@@ -130,3 +155,4 @@ class _RutinaPageState extends State<RutinaPage> {
     );
   }
 }
+
