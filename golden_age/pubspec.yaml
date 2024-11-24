@@ -43,6 +43,7 @@ dependencies:
   firebase_crashlytics: ^4.1.3
   firebase_performance: ^0.10.0+8
   cloud_firestore: ^5.4.4
+  shared_preferences: ^2.0.17
 
 dev_dependencies:
   flutter_test:
