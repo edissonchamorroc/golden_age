@@ -29,7 +29,7 @@ class _RutinaPageState extends State<RutinaPage> {
   Future<void> fetchExercises() async {
     if (selectedMuscleGroup == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Selecciona un grupo muscular y nivel')),
+        const SnackBar(content: Text('Selecciona un grupo muscular')),
       );
       return;
     }
@@ -119,6 +119,7 @@ class _RutinaPageState extends State<RutinaPage> {
                                   'Descanso: ${exercise.restTime} seg\n'
                                   'Descripción: ${exercise.description}',
                                 ),
+                                
                               ),
                             );
                           },
