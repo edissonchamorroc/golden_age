@@ -32,7 +32,7 @@ class _RegisterPageState extends State<RegisterPage> {
     'Resistencia',
   ];
   final List<String> _expertises = [
-    'Novato',
+    'Principiante',
     'Intermedio',
     'Avanzado',
   ];
@@ -82,8 +82,8 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 
-  void _createUser(GoldenUser user) async {
-    var result = await _firebaseApi.createUser(user.email, user.password);
+  void _createUser(GoldenUser user,String email, String pass) async {
+    var result = await _firebaseApi.createUser(email, pass);
     if (result == 'invalid-email') {
       _showMessage('El correo electrónico está mal escrito');
     } else if (result == 'email-already-in-use') {
@@ -105,9 +105,9 @@ class _RegisterPageState extends State<RegisterPage> {
       _showMessage("ERROR: Las contraseñas deben ser iguales");
     } else {
       String genre = _genre == Genre.male ? "Maculino" : "Femenino";
-      var user = GoldenUser("", _name.text, _email.text, _password.text, genre,
+      var user = GoldenUser("", _name.text, genre,
           _expertise.text, _objetive.text, _dateConverter(_data), _weight.text);
-      _createUser(user);
+      _createUser(user,_email.text,_password.text);
     }
   }
 
