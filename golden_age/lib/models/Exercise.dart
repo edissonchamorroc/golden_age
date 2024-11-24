@@ -35,14 +35,14 @@ class Exercise {
 
   Map<String, dynamic> toJson() {
     return {
-      'name': name,
-      'muscleGroup':muscleGroup,
-      'nivel': nivel,
-      'repetitions': repetitions,
-      'series': series,
-      'weight': weight,
-      'restTime': restTime,
-      'description': description,
+      "name": name,
+      "muscleGroup":muscleGroup,
+      "nivel": nivel,
+      "repetitions": repetitions,
+      "series": series,
+      "weight": weight,
+      "restTime": restTime,
+      "description": description,
     };
   }
 

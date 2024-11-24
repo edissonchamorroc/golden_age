@@ -44,6 +44,8 @@ dependencies:
   firebase_performance: ^0.10.0+8
   cloud_firestore: ^5.4.4
   shared_preferences: ^2.0.17
+  carousel_slider: ^5.0.0
+  
 
 dev_dependencies:
   flutter_test:
@@ -70,7 +72,8 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/images/
+    - assets/imagenes/
+    - assets/Press_de_banca_con_barra/
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg
