@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:table_calendar/table_calendar.dart';
-import 'create_routine_page.dart';
-import 'generate_routine_page.dart';
+import 'package:golden_age/models/Exercise.dart';
+import 'package:golden_age/pages/exercise_detail_page.dart';
+import 'package:golden_age/repository/firebase_api.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RutinaPage extends StatefulWidget {
   const RutinaPage({super.key});
@@ -11,110 +14,144 @@ class RutinaPage extends StatefulWidget {
 }
 
 class _RutinaPageState extends State<RutinaPage> {
-  final CalendarFormat _calendarFormat = CalendarFormat.month;
-  DateTime _focusedDay = DateTime.now();
-  DateTime? _selectedDay;
+  final FirebaseApi _firebaseService = FirebaseApi();
+  String? selectedMuscleGroup;
+  List<Exercise> exercises = [];
+  bool isLoading = false;
 
-  // Función para manejar las opciones seleccionadas en el menú desplegable.
-  void _handleMenuOption(String option) {
-    switch (option) {
-      case 'Generar rutina automática':
-        // Acción para generar una rutina automática.
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => GenerateRoutinePage()),
-        );
-        break;
-      case 'Crear nueva rutina':
-        // Acción para crear una nueva rutina.
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => CreateRoutinePage()),
-        );
-        break;
-      case 'Modificar rutina actual':
-        // Acción para modificar la rutina actual.
-        print('Modificar rutina actual');
-        break;
+  final List<String> muscleGroups = [
+    'Pecho',
+    'Espalda',
+    'Piernas',
+    'Brazos',
+    'Hombros',
+    'Abdominales',
+  ];
+
+  Future<void> fetchExercises() async {
+    if (selectedMuscleGroup == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Selecciona un grupo muscular')),
+      );
+      return;
     }
+
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      List<Exercise>? fetchedExercises = await _firebaseService.fetchExercises(
+        selectedMuscleGroup!,
+      );
+
+      setState(() {
+        exercises = fetchedExercises!;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al obtener ejercicios: $e')),
+      );
+    }
+  }
+
+  Future<void> saveExerciseToLocalStorage(Exercise exercise) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String exerciseJson = jsonEncode(exercise.toJson());
+    if (exerciseJson == prefs.getString('selectedExercise')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Ya ingresaste a este ejercicio')),
+      );
+    }
+    await prefs.setString('selectedExercise', exerciseJson);
+  }
+
+  void navigateToExerciseDetail(Exercise exercise) async {
+    await saveExerciseToLocalStorage(exercise);
+    Navigator.push(
+      // ignore: use_build_context_synchronously
+      context,
+      MaterialPageRoute(
+        builder: (context) => ExerciseDetailPage(),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          "Calendario",
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: Colors.black,
-        // Menú desplegable en la parte superior derecha del AppBar.
-        actions: [
-          PopupMenuButton<String>(
-            icon: Icon(Icons.menu, color: Colors.white), // Ícono del menú.
-            onSelected: _handleMenuOption, // Acción al seleccionar una opción.
-            itemBuilder: (BuildContext context) => [
-              PopupMenuItem(
-                value:
-                    'Generar rutina automática', // Identificador de la opción.
-                child: Text('Generar rutina automática'), // Texto mostrado.
-              ),
-              PopupMenuItem(
-                value: 'Crear nueva rutina', // Identificador de la opción.
-                child: Text('Crear nueva rutina'), // Texto mostrado.
-              ),
-              PopupMenuItem(
-                value: 'Modificar rutina actual', // Identificador de la opción.
-                child: Text('Modificar rutina actual'), // Texto mostrado.
-              ),
-            ],
-          ),
-        ],
+        title: const Text('Generador de Rutina'),
       ),
-      body: Container(
-          color: Colors.black,
-          child: TableCalendar(
-            focusedDay: _focusedDay,
-            firstDay: DateTime.utc(
-              2020,
-              1,
-              1,
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Selecciona un grupo muscular:',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            lastDay: DateTime.utc(2030, 12, 31),
-            calendarFormat: _calendarFormat,
-            selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-            onDaySelected: (selectedDay, focusedDay) {
-              setState(() {
-                _selectedDay = selectedDay;
-                _focusedDay = focusedDay;
-              });
-            },
-            onFormatChanged: (focusedDay) {
-              _focusedDay = focusedDay as DateTime;
-            },
-            calendarStyle: CalendarStyle(
-              defaultTextStyle: TextStyle(color: Colors.white),
-              //weekendTextStyle: TextStyle(color: Colors.white),
-              selectedDecoration: BoxDecoration(
-                color: Colors.grey[700],
-                shape: BoxShape.circle,
-              ),
-              todayDecoration: BoxDecoration(
-                color: Colors.grey[800],
-                shape: BoxShape.circle,
-              ),
+            const SizedBox(height: 10),
+            DropdownButton<String>(
+              value: selectedMuscleGroup,
+              items: muscleGroups.map((muscle) {
+                return DropdownMenuItem(
+                  value: muscle,
+                  child: Text(muscle),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  selectedMuscleGroup = value;
+                });
+              },
+              hint: const Text('Elige un grupo muscular'),
+              isExpanded: true,
             ),
-            daysOfWeekStyle:
-                DaysOfWeekStyle(weekdayStyle: TextStyle(color: Colors.white38)),
-            headerStyle: HeaderStyle(
-              formatButtonVisible: false,
-              titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),
-              leftChevronIcon: Icon(Icons.chevron_left, color: Colors.white),
-              rightChevronIcon: Icon(Icons.chevron_right, color: Colors.white),
-              decoration:
-                  BoxDecoration(color: Colors.black), // Fondo del header
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: fetchExercises,
+              child: const Text('Generar Rutina'),
             ),
-          )),
+            const SizedBox(height: 20),
+            isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : exercises.isEmpty
+                    ? const Center(child: Text('No se encontraron ejercicios'))
+                    : Expanded(
+                        child: ListView.builder(
+                          itemCount: exercises.length,
+                          itemBuilder: (context, index) {
+                            final exercise = exercises[index];
+                            return Card(
+                              margin: const EdgeInsets.symmetric(vertical: 8),
+                              child: ListTile(
+                                title: Text(
+                                  exercise.name,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  'Repeticiones: ${exercise.repetitions}\n'
+                                  'Peso: ${exercise.weight} kg\n'
+                                  'Descanso: ${exercise.restTime} seg\n'
+                                  'Descripción: ${exercise.description}',
+                                ),
+                                onTap: () => navigateToExerciseDetail(exercise),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+          ],
+        ),
+      ),
     );
   }
 }

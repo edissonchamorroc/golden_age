@@ -71,7 +71,7 @@ class FirebaseApi {
 
       // Extrae los datos de los documentos y desanida los mapas
       List<Map<String, dynamic>> exercisesData = querySnapshot.docs
-          .map((doc) => doc.data() as Map<String, dynamic>)
+          .map((doc) => doc.data())
           .expand((exerciseMap) => exerciseMap.values) // Desanida los valores
           .map((value) =>
               value as Map<String, dynamic>) // Convierte cada valor en un mapa
@@ -89,6 +89,19 @@ class FirebaseApi {
     } catch (e) {
       print('Error fetching exercises: $e');
       return [];
+    }
+  }
+
+  Future<void> saveRepetitionsToFirebase() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      String? userId = prefs.getString('userId');
+      final FirebaseFirestore firestore = FirebaseFirestore.instance;
+     // await firestore.collection('segimiento').doc(userId).set(data)
+
+    } catch (e) {
+    print('Error fetching exercises: $e');
+      
     }
   }
 }
