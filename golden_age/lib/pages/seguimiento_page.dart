@@ -21,9 +21,7 @@ class _SeguimientoPageState extends State<SeguimientoPage> {
 
   Future<void> loadSeguimientoData() async {
     try {
-      // Cargar datos filtrados por fecha seleccionada
       final data = await _firestore.fetchExerciseData(selectedDate);
-
       setState(() {
         exerciseData = data;
       });
@@ -34,6 +32,7 @@ class _SeguimientoPageState extends State<SeguimientoPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Generar los días del mes actual
     final daysInMonth = List.generate(
       DateTime(selectedDate.year, selectedDate.month + 1, 0).day,
       (index) => DateTime(selectedDate.year, selectedDate.month, index + 1),
@@ -50,7 +49,7 @@ class _SeguimientoPageState extends State<SeguimientoPage> {
             scrollDirection: Axis.horizontal,
             child: Row(
               children: daysInMonth.map((day) {
-                // Verificar si hay datos para cada día
+                // Verificar si hay datos para el día actual
                 final hasData = exerciseData.any((exercise) {
                   final timestamp = (exercise['timestamp']).toDate();
                   return timestamp.year == day.year &&
@@ -73,12 +72,15 @@ class _SeguimientoPageState extends State<SeguimientoPage> {
                       color: hasData
                           ? Colors.green
                           : Colors.grey, // Verde si hay datos, gris si no
+                      border: Border.all(
+                        color: day == selectedDate ? Colors.blue : Colors.transparent,
+                        width: 2,
+                      ),
                     ),
                     child: Text(
                       day.day.toString(),
                       style: TextStyle(
-                        color:
-                            day == selectedDate ? Colors.white : Colors.black,
+                        color: day == selectedDate ? Colors.white : Colors.black,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -109,13 +111,13 @@ class _SeguimientoPageState extends State<SeguimientoPage> {
 
                       final totalReps = (exercise['series'] as List<dynamic>)
                           .fold<int>(0, (sum, serie) {
-                        // Validamos que cada elemento de la lista sea un mapa y que contenga 'repetitions'.
                         if (serie is Map<String, dynamic> &&
                             serie['repetitions'] is int) {
                           return sum + (serie['repetitions'] as int);
                         }
-                        return sum; // Si no cumple la condición, simplemente no lo sumamos.
+                        return sum;
                       });
+
                       final score = totalReps * 5;
 
                       return Card(
@@ -141,7 +143,7 @@ class _SeguimientoPageState extends State<SeguimientoPage> {
                               const SizedBox(height: 10),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                children: (exercise['series'] as List)
+                                children: (exercise['series'] as List<dynamic>)
                                     .map<Widget>((serie) => Text(
                                           'Serie: ${serie['repetitions']} repeticiones',
                                         ))
