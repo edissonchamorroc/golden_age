@@ -66,10 +66,11 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
 
       // Filtra los assets por la carpeta específica
       final folderPath = 'assets/$exerciseName/';
+      print(folderPath);
       final imagePaths = manifestMap.keys
           .where((path) => path.startsWith(folderPath))
           .toList();
-
+      print(imagePaths);
       setState(() {
         images = imagePaths;
       });
