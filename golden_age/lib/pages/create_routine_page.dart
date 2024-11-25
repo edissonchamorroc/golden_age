@@ -1,255 +1,233 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:table_calendar/table_calendar.dart';
+import 'package:golden_age/models/Exercise.dart';
+import 'package:golden_age/pages/exercise_detail_page.dart';
+import 'package:golden_age/repository/firebase_api.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CreateRoutinePage extends StatefulWidget {
   const CreateRoutinePage({super.key});
 
   @override
-  State<CreateRoutinePage> createState() => _CreateRoutinePageState();
+  State<CreateRoutinePage> createState() => _CreateRutinaPageState();
 }
 
-class _CreateRoutinePageState extends State<CreateRoutinePage> {
-  final CalendarFormat _calendarFormat = CalendarFormat.month;
-  DateTime _data = DateTime.now();
+class _CreateRutinaPageState extends State<CreateRoutinePage> {
+  final FirebaseApi _firebaseService = FirebaseApi();
+  String? selectedMuscleGroup;
+  List<Exercise> exercises = [];
+  bool isLoading = false;
+  List<Exercise> rutinadesing = [];
+  final List<String> muscleGroups = [
+    'Pecho',
+    'Espalda',
+    'Piernas',
+    'Brazos',
+    'Hombros',
+    'Abdominales',
+  ];
 
-  String _dateConverter(DateTime newDate) {
-    final DateFormat formatter = DateFormat('yyyy-MM-dd');
-    final String dateFormatted = formatter.format(newDate);
-    return dateFormatted;
-  }
+  Future<void> allExercises() async {
+    if (selectedMuscleGroup == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Selecciona un grupo muscular')),
+      );
+      return;
+    }
 
-  //funcion para mostrar el calendario
-  void _showSelectedDate() async {
-    final DateTime? newDate = await showDatePicker(
-      context: context,
-      locale: const Locale("es", "CO "),
-      initialDate: DateTime.now(),
-      firstDate: DateTime(1900, 1),
-      lastDate: DateTime.now(),
-      helpText: "Fecha de Inicio",
-      builder: (BuildContext context, Widget? child) {
-        return Theme(
-          data: ThemeData.light().copyWith(
-            primaryColor:
-                Colors.black, // Color principal (barra superior y selección)
-            colorScheme: ColorScheme.light(
-              primary: Colors.grey, // Color de los elementos seleccionados
-              onPrimary: Colors.white, // Color del texto en la barra superior
-              onSurface: Colors.black, // Color del texto de las fechas
-            ),
-            textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(
-                foregroundColor: Colors
-                    .black, // Color de los botones de acción (Aceptar/Cancelar)
-              ),
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-    if (newDate != null) {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      List<Exercise>? fetchedExercises = await _firebaseService.allExercises(
+        selectedMuscleGroup!,
+      );
+
       setState(() {
-        _data = newDate;
-        buttonMsg = "Fecha de Inicio ${_dateConverter((_data))}";
+        exercises = fetchedExercises!;
+        isLoading = false;
       });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al obtener ejercicios: $e')),
+      );
     }
   }
 
-  final _bloquesProgramados = TextEditingController();
-  final _numeroDeDiasPorBloque = TextEditingController();
+  Future<void> saveExerciseToLocalStorage(Exercise exercise) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String exerciseJson = jsonEncode(exercise.toJson());
+    if (exerciseJson == prefs.getString('selectedExercise')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Ya ingresaste a este ejercicio')),
+      );
+    }
+    await prefs.setString('selectedExercise', exerciseJson);
+  }
 
-  bool _lunes = false;
-  bool _martes = false;
-  bool _miercoles = false;
-  bool _jueves = false;
-  bool _viernes = false;
-  bool _sabado = false;
-  bool _domingo = false;
-
-  String buttonMsg = "Fecha de inicial";
+  void navigateToExerciseDetail(Exercise exercise) async {
+    await saveExerciseToLocalStorage(exercise);
+    Navigator.push(
+      // ignore: use_build_context_synchronously
+      context,
+      MaterialPageRoute(
+        builder: (context) => ExerciseDetailPage(),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          "Nueva rutina",
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: Colors.black,
+        title: const Text('Diseña tu Rutina'),
       ),
-      body: Container(
-        color: Colors.white,
-        child: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TextFormField(
-                  controller: _numeroDeDiasPorBloque,
-                  decoration: const InputDecoration(
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(),
-                    labelText: "Dias por bloque",
-                    labelStyle: TextStyle(color: Colors.black),
-                    prefixIcon: Icon(Icons.person),
-                    prefixIconColor: Colors.black,
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                          color: Colors.grey,
-                          width: 1.0), // Borde cuando no está enfocado
-                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                          color: Colors.grey,
-                          width: 2.0), // Borde cuando está enfocado
-                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                    ),
-                  ),
-                  keyboardType: TextInputType.text,
-                ),
-                const SizedBox(
-                  height: 16.0,
-                ),
-                TextFormField(
-                  controller: _bloquesProgramados,
-                  decoration: const InputDecoration(
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(),
-                    labelText: "Numero de bloques programados",
-                    labelStyle: TextStyle(color: Colors.black),
-                    prefixIcon: Icon(Icons.person),
-                    prefixIconColor: Colors.black,
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                          color: Colors.grey,
-                          width: 1.0), // Borde cuando no está enfocado
-                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                          color: Colors.grey,
-                          width: 2.0), // Borde cuando está enfocado
-                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                    ),
-                  ),
-                  keyboardType: TextInputType.text,
-                ),
-                const SizedBox(
-                  height: 16.0,
-                ),
-                CheckboxListTile(
-                    title: const Text("Lunes"),
-                    value: _lunes, //para extraer la información
-                    selected: _lunes, //Para cambiar el estado
-                    activeColor:
-                        Colors.black, // Color del checkbox cuando está marcado.
-                    onChanged: (bool? value) {
-                      //cuando doy click se ejecuta el setstate
-                      setState(() {
-                        _lunes =
-                            value!; //Cuando se presiona se cambia el estado de la variable
-                      });
-                    }),
-                CheckboxListTile(
-                    title: const Text("Martes"),
-                    value: _martes, //para extraer la información
-                    selected: _martes, //Para cambiar el estado
-                    activeColor:
-                        Colors.black, // Color del checkbox cuando está marcado.
-                    onChanged: (bool? value) {
-                      //cuando doy click se ejecuta el setstate
-                      setState(() {
-                        _martes =
-                            value!; //Cuando se presiona se cambia el estado de la variable
-                      });
-                    }),
-                CheckboxListTile(
-                    title: const Text("Miercoles"),
-                    value: _miercoles, //para extraer la información
-                    selected: _miercoles, //Para cambiar el estado
-                    activeColor:
-                        Colors.black, // Color del checkbox cuando está marcado.
-                    onChanged: (bool? value) {
-                      //cuando doy click se ejecuta el setstate
-                      setState(() {
-                        _miercoles =
-                            value!; //Cuando se presiona se cambia el estado de la variable
-                      });
-                    }),
-                CheckboxListTile(
-                    title: const Text("Jueves"),
-                    value: _jueves, //para extraer la información
-                    selected: _jueves, //Para cambiar el estado
-                    activeColor:
-                        Colors.black, // Color del checkbox cuando está marcado.
-                    onChanged: (bool? value) {
-                      //cuando doy click se ejecuta el setstate
-                      setState(() {
-                        _jueves =
-                            value!; //Cuando se presiona se cambia el estado de la variable
-                      });
-                    }),
-                CheckboxListTile(
-                    title: const Text("Viernes"),
-                    value: _viernes, //para extraer la información
-                    selected: _viernes, //Para cambiar el estado
-                    activeColor:
-                        Colors.black, // Color del checkbox cuando está marcado.
-                    onChanged: (bool? value) {
-                      //cuando doy click se ejecuta el setstate
-                      setState(() {
-                        _viernes =
-                            value!; //Cuando se presiona se cambia el estado de la variable
-                      });
-                    }),
-                CheckboxListTile(
-                    title: const Text("Sabado"),
-                    value: _sabado, //para extraer la información
-                    selected: _sabado, //Para cambiar el estado
-                    activeColor:
-                        Colors.black, // Color del checkbox cuando está marcado.
-                    onChanged: (bool? value) {
-                      //cuando doy click se ejecuta el setstate
-                      setState(() {
-                        _sabado =
-                            value!; //Cuando se presiona se cambia el estado de la variable
-                      });
-                    }),
-                CheckboxListTile(
-                    title: const Text("Domingo"),
-                    value: _domingo, //para extraer la información
-                    selected: _domingo, //Para cambiar el estado
-                    activeColor:
-                        Colors.black, // Color del checkbox cuando está marcado.
-                    onChanged: (bool? value) {
-                      //cuando doy click se ejecuta el setstate
-                      setState(() {
-                        _domingo =
-                            value!; //Cuando se presiona se cambia el estado de la variable
-                      });
-                    }),
-                const SizedBox(
-                  height: 16,
-                ),
-                ElevatedButton(
-                    style: TextButton.styleFrom(
-                        textStyle:
-                            const TextStyle(fontSize: 16, color: Colors.white),
-                        backgroundColor: Colors.black,
-                        foregroundColor: Colors.white),
-                    child: Text(buttonMsg),
-                    onPressed: () {
-                      _showSelectedDate();
-                    }),
-              ],
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Selecciona un grupo muscular:',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-          ),
+            const SizedBox(height: 10),
+            DropdownButton<String>(
+              value: selectedMuscleGroup,
+              items: muscleGroups.map((muscle) {
+                return DropdownMenuItem(
+                  value: muscle,
+                  child: Text(muscle),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  selectedMuscleGroup = value;
+                });
+              },
+              hint: const Text('Elige un grupo muscular'),
+              isExpanded: true,
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: allExercises,
+              child: const Text('Ejercicios disponibles'),
+            ),
+            const SizedBox(height: 20),
+            isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : exercises.isEmpty
+                    ? const Center(child: Text('No se encontraron ejercicios'))
+                    : Expanded(
+                        child: ListView.builder(
+                          itemCount: exercises.length,
+                          itemBuilder: (context, index) {
+                            final exercise = exercises[index];
+                            return Card(
+                              margin: const EdgeInsets.symmetric(vertical: 8),
+                              child: ListTile(
+                                title: Text(
+                                  exercise.name,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  'Descripción: ${exercise.description}',
+                                ),
+                                onTap: () {
+                                  setState(() {
+                                    if (!rutinadesing.contains(exercise)) {
+                                      rutinadesing.add(exercise);
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                              '${exercise.name} agregado a la rutina.'),
+                                        ),
+                                      );
+                                    }
+                                  });
+                                },
+                                onLongPress: () {
+                                  setState(() {
+                                    if (rutinadesing.contains(exercise)) {
+                                      rutinadesing.remove(exercise);
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                              '${exercise.name} eliminado de la rutina.'),
+                                        ),
+                                      );
+                                    }
+                                  });
+                                },
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                if (rutinadesing.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('La rutina está vacía.'),
+                    ),
+                  );
+                } else {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: const Text('Rutina Diseñada'),
+                        content: SizedBox(
+                          width: double.maxFinite,
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: rutinadesing.length,
+                            itemBuilder: (context, index) {
+                              final exercise = rutinadesing[index];
+                              return Card(
+                                margin: const EdgeInsets.symmetric(vertical: 4),
+                                child: ListTile(
+                                  title: Text(
+                                    exercise.name,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  subtitle: Text(
+                                    'Descripción: ${exercise.description}',
+                                  ),
+                                  onTap: () =>
+                                      navigateToExerciseDetail(exercise),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text('Cerrar'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }
+              },
+              child: const Text('Visualizar Rutina'),
+            ),
+            const SizedBox(height: 20),
+          ],
         ),
       ),
     );

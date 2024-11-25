@@ -1,91 +1,72 @@
 class GoldenUser {
-  var _uid;
-  var _name;
-  var _email;
-  var _password;
-  var _genre;
-  var _expertise;
-  var _objetive;
-  var _bornDate;
-  var _weight;
+  String _uid;
+  String _name;
+  String _genre;
+  String _expertise;
+  String _objective;
+  String _bornDate;
+  String _weight;
+  String _email="";
+  String _password="";
 
-  GoldenUser(this._uid, this._name, this._email, this._password, this._genre,
-      this._expertise, this._objetive, this._bornDate, this._weight);
+  GoldenUser(
+    this._uid,
+    this._name,
+    this._genre,
+    this._expertise,
+    this._objective,
+    this._bornDate,
+    this._weight,
+  );
 
-  get uid => _uid;
+  String get uid => _uid;
+  set uid(String value) => _uid = value;
 
-  set uid(value) {
-    _uid = value;
-  }
+  String get name => _name;
+  set name(String value) => _name = value;
 
-  get name => _name;
+  String get genre => _genre;
+  set genre(String value) => _genre = value;
 
-  set name(value) {
-    _name = value;
-  }
+  String get expertise => _expertise;
+  set expertise(String value) => _expertise = value;
 
-  get genre => _genre;
+  String get objective => _objective;
+  set objective(String value) => _objective = value;
 
-  set genre(value) {
-    _genre = value;
-  }
+  String get bornDate => _bornDate;
+  set bornDate(String value) => _bornDate = value;
 
-  get password => _password;
+  String get weight => _weight;
+  set weight(String value) => _weight = value;
 
-  set password(value) {
-    _password = value;
-  }
+  String get email => _email;
+  set email(String value) => _email = value;
 
-  get email => _email;
-
-  set email(value) {
-    _email = value;
-  }
-
-  get expertise => _expertise;
-
-  set expertise(value) {
-    _expertise = value;
-  }
-
-  get target => _objetive;
-
-  set target(value) {
-    _objetive = value;
-  }
-
-  get bornDate => _bornDate;
-
-  set bornDate(value) {
-    _bornDate = value;
-  }
-
-  get weight => _weight;
-
-  set weight(value) {
-    _weight = value;
-  }
+  String get password => _password;
+  set password(String value) => _password = value;
 
   Map<String, dynamic> toMap() {
     return {
       'uid': _uid,
       'name': _name,
-      'email': _email,
-      'password': _password,
       'genre': _genre,
       'expertise': _expertise,
-      'objetive': _objetive,
+      'objective': _objective,
       'bornDate': _bornDate,
-      'progress': getProgress()
+      'weight': _weight,
     };
   }
 
-  Map<String, dynamic> getProgress() {
-    return {
-      'weight': _weight,
-      'benchPressRM': 0,
-      'squatRM': 0,
-      'deadliftRM': 0,
-    };
+  factory GoldenUser.fromMap(Map<String, dynamic> data) {
+    return GoldenUser(
+      data['uid'] as String,
+      data['name'] as String,
+      data['genre'] as String,
+      data['expertise'] as String,
+      data['objective'] as String,
+      data['bornDate'] as String,
+      data['weight'] as String,
+    );
   }
 }
