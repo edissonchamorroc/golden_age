@@ -3,6 +3,7 @@ import 'package:golden_age/pages/login_pages.dart';
 import 'package:golden_age/pages/rutina_page.dart';
 import 'package:golden_age/pages/seguimiento_page.dart';
 import 'package:golden_age/repository/firebase_api.dart';
+import 'package:golden_age/pages/create_routine_page.dart';
 
 class NavigationBarPage extends StatefulWidget {
   const NavigationBarPage({super.key});
@@ -19,12 +20,14 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
     await _firebaseApi.singOutUser();
     Navigator.pushReplacement(
         // ignore: use_build_context_synchronously
-        context, MaterialPageRoute(builder: (context) => const LoginPage()));
+        context,
+        MaterialPageRoute(builder: (context) => const LoginPage()));
   }
 
   static const List<Widget> _widgetOptions = <Widget>[
     RutinaPage(),
-    SeguimientoPage()
+    SeguimientoPage(),
+    CreateRoutinePage()
   ];
 
   void _onItemTapped(int index) {
@@ -82,7 +85,7 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
           children: [
             DrawerHeader(
               decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor,
+                color: Colors.black,
               ),
               child: Text(
                 "Menu",
@@ -91,13 +94,6 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
                   fontSize: 24,
                 ),
               ),
-            ),
-            ListTile(
-              leading: Icon(Icons.home),
-              title: Text('Home'),
-              onTap: () {
-                Navigator.pop(context); // Cierra el drawer
-              },
             ),
             ListTile(
               leading: Icon(Icons.logout),
@@ -124,9 +120,12 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
       bottomNavigationBar: BottomNavigationBar(
         items: const [
           BottomNavigationBarItem(
-              icon: Icon(Icons.fitness_center), label: "Rutina"),
+              icon: Icon(Icons.fitness_center), label: "Genera tu Rutina"),
           BottomNavigationBarItem(
               icon: Icon(Icons.graphic_eq_rounded), label: "Seguimiento"),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.fitness_center_outlined),
+              label: "Diseña tu Rutina"),
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.black,

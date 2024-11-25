@@ -75,6 +75,30 @@ flutter:
   assets:
     - assets/imagenes/
     - assets/Press_de_banca_con_barra/
+    - assets/Aperturas_en_máquina_pec-deck/
+    - assets/Dominadas_lastradas/
+    - assets/Pull-over_en_polea_alta/
+    - assets/Remo_con_barra_supino/
+    - assets/Prensa_de_piernas/
+    - assets/Sentadilla_frontal_con_barra/
+    - assets/Curl_de_bíceps_con_mancuernas/
+    - assets/Extensión_de_tríceps_en_polea/
+    - assets/Curl_de_bíceps_en_banco_Scott/
+    - assets/Elevaciones_laterales_con_mancuernas/
+    - assets/Aperturas_con_mancuernas/
+    - assets/Press_militar_con_barra/
+    - assets/Crunch_abdominal/
+    - assets/Ab_wheel_rollout/
+    - assets/Press_inclinado_con_mancuernas/
+    - assets/Press_con_máquina_Hammer/
+    - assets/Press_declinado_con_barra/
+    - assets/Jalon_al_pecho/
+    - assets/Remo_con_mancuerna/
+    - assets/Remo_con_barra_T/
+
+
+
+
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:golden_age/models/Exercise.dart';
 import 'package:golden_age/pages/exercise_detail_page.dart';

@@ -93,6 +93,43 @@ class FirebaseApi {
     }
   }
 
+  Future<List<Exercise>?> allExercises(String muscleGroup) async {
+    final prefs = await SharedPreferences.getInstance();
+    String? userId = prefs.getString('userId');
+
+    try {
+      var firestore = FirebaseFirestore.instance;
+
+      // Obtiene la información del usuario
+      var docSnapshot = await firestore.collection('users').doc(userId).get();
+      GoldenUser? user = GoldenUser.fromMap(docSnapshot.data()!);
+
+      // Realiza la consulta para obtener los ejercicios
+      final querySnapshot = await firestore.collection('exercises').get();
+
+      // Extrae los datos de los documentos y desanida los mapas
+      List<Map<String, dynamic>> exercisesData = querySnapshot.docs
+          .map((doc) => doc.data())
+          .expand((exerciseMap) => exerciseMap.values) // Desanida los valores
+          .map((value) =>
+              value as Map<String, dynamic>) // Convierte cada valor en un mapa
+          .toList();
+
+      // Convierte los datos en objetos Exercise y filtra por nivel y grupo muscular
+      List<Exercise> filteredExercises = exercisesData
+          .map((exerciseData) => Exercise.fromJson(exerciseData))
+          .where((exercise) =>
+              //exercise.nivel == user.expertise &&
+              exercise.muscleGroup == muscleGroup)
+          .toList();
+
+      return filteredExercises;
+    } catch (e) {
+      print('Error fetching exercises: $e');
+      return [];
+    }
+  }
+
   Future<void> saveSeguimiento(Map<String, dynamic> segumiento) async {
     try {
       String uuid = Uuid().v4();
